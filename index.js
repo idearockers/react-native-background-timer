@@ -15,12 +15,19 @@ class BackgroundTimer {
     this.callbacks = {};
 
     Emitter.addListener('backgroundTimer.timeout', id => {
-      if (this.callbacks[id]) {
-        const callback = this.callbacks[id].callback;
-        if (!this.callbacks[id].interval) {
+      const timeout = this.callbacks[id];
+      if (timeout) {
+        const callback = timeout.callback;
+
+        if (!timeout.interval) {
           delete this.callbacks[id];
         } else {
-          RNBackgroundTimer.setTimeout(id, this.callbacks[id].timeout);
+          const delta = Date.now() - timeout.expected;
+
+          const ticks = Math.max(1, 1 + Math.round(delta / timeout.timeout));
+          const addToExpected = timeout.timeout * ticks;
+          timeout.expected += addToExpected;
+          RNBackgroundTimer.setTimeout(id, addToExpected - delta);
         }
         callback();
       }
@@ -89,20 +96,7 @@ class BackgroundTimer {
       callback: callback,
       interval: true,
       timeout: timeout,
-    };
-
-    const step = () => {
-      if (!this.callbacks[intervalId]) {
-        return;
-      }
-
-      const delta = Date.now() - expected;
-      const ticks = Math.max(1, 1 + Math.round(delta / timeout));
-      callback(ticks);
-      const addToExpected = timeout * ticks;
-      expected += addToExpected;
-
-      RNBackgroundTimer.setTimeout(intervalId, addToExpected - delta);
+      expected: Date.now() + timeout,
     };
 
     RNBackgroundTimer.setTimeout(intervalId, timeout);
