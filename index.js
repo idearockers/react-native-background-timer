@@ -90,7 +90,7 @@ class BackgroundTimer {
     let expected = Date.now() + timeout;
 
     this.callbacks[intervalId] = {
-      callback: step,
+      callback: callback,
       interval: true,
       timeout: timeout,
     };
