@@ -87,12 +87,30 @@ class BackgroundTimer {
   setInterval(callback, timeout) {
     this.uniqueId += 1;
     const intervalId = this.uniqueId;
+    let expected = Date.now() + timeout;
+
     this.callbacks[intervalId] = {
-      callback,
+      callback: step,
       interval: true,
-      timeout,
+      timeout: timeout,
     };
+
+    const step = () => {
+      if (!this.callbacks[intervalId]) {
+        return;
+      }
+
+      const delta = Date.now() - expected;
+      const ticks = Math.max(1, 1 + Math.round(delta / timeout));
+      callback(ticks);
+      const addToExpected = timeout * ticks;
+      expected += addToExpected;
+
+      RNBackgroundTimer.setTimeout(intervalId, addToExpected - delta);
+    };
+
     RNBackgroundTimer.setTimeout(intervalId, timeout);
+
     return intervalId;
   }
 
