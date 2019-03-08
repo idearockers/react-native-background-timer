@@ -7,9 +7,9 @@ Pod::Spec.new do |s|
   s.version          = package['version']
   s.summary          = package['description']
   s.license          = package['license']
-  s.homepage         = 'https://github.com/idearockers/react-native-background-timer.git'
-  s.authors          = 'Lars Graubner'
-  s.source           = { :git => 'https://github.com/idearockers/react-native-svg.git', :tag => s.version }
+  s.homepage         = package['homepage']
+  s.authors          = package['author']
+  s.source           = { :git => package['repository']['url'], :tag => 'v#{s.version}' }
   s.source_files     = 'ios/**/*.{h,m}'
   s.requires_arc     = true
   s.platforms        = { :ios => "8.0", :tvos => "9.2" }
